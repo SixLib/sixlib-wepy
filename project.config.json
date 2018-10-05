@@ -1,0 +1,16 @@
+{
+	"description": "WePY cloud iview-weapp project",
+	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "",
+	"projectname": "wepy-cloud-template",
+	"miniprogramRoot": "dist/",
+	"condition": {},
+	"cloudfunctionRoot": "cloudfunctionRoot/"
+}

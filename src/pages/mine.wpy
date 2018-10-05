@@ -1,0 +1,25 @@
+<style lang="less">
+  .mine-avatar {
+    width: ~'200rpx';
+    height: ~'200rpx';
+    border-radius: ~'100rpx';
+  }
+</style>
+
+<template>
+  <view class='container'>
+    <open-data class='mine-avatar' type='userAvatarUrl'></open-data>
+    <open-data type='userNickName'></open-data>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  export default class Mine extends wepy.page {
+    config = {
+      'usingComponents': {
+        'i-avatar': '../../components/weapp/avatar/index'
+      }
+    }
+  }
+</script>
