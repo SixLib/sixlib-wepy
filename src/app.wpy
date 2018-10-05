@@ -1,4 +1,7 @@
 <style lang='less'>
+page{
+  background-color: #F7F7F7;
+}
   .container {
     height: 100%;
     display: flex;
@@ -23,7 +26,9 @@
     config = {
       pages: [
         'pages/index',
-        'pages/mine'
+        'pages/mine',
+        'pages/myresume',
+        'pages/mysetting'
       ],
       window: {
         backgroundTextStyle: 'light',

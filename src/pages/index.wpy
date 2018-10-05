@@ -3,6 +3,7 @@
     width: 100%;
     .slide-image {
       height: 100%;
+      width: 100%;
     }
   }
   .menu {
@@ -17,14 +18,17 @@
       border-radius: 6px;
       padding: ~"30rpx";
       box-sizing: border-box;
+      width: 100%;
       .menu-item {
-        width: ~"318rpx";
+        width: calc(50% - 1rpx);
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
         .menu-item-box {
           margin: ~"20rpx";
+          font-size: 14px;
+          color: #495060;
         }
       }
     }
@@ -83,7 +87,7 @@
 
 <script>
   import wepy from 'wepy'
-  import authorize from '@/components/authorize'
+  import authorize from '@/pages/authorize'
   import {
     $Toast
   } from '@/components/weapp/base/index'

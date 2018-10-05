@@ -1,10 +1,13 @@
 <style lang="less">
-  .mine-avatar {
-    width: ~'200rpx';
-    height: ~'200rpx';
-    border-radius: 50%;
-    overflow: hidden;
-    display: block;
+  .avatar {
+    margin: ~"40rpx";
+    .mine-avatar {
+      width: ~'200rpx';
+      height: ~'200rpx';
+      border-radius: 50%;
+      overflow: hidden;
+      display: block;
+    }
   }
   .content-cell {
     width: 100%;
@@ -14,18 +17,19 @@
 
 <template>
   <view class='container'>
-    <view>
+    <view class="avatar">
       <open-data class='mine-avatar' type='userAvatarUrl' />
       <open-data type='userNickName' />
     </view>
     <view class='content-cell'>
       <i-cell-group>
-        <i-cell title="我的首页" is-link url="/pages/index"></i-cell>
+        <i-cell title="我的简历" is-link url="/pages/myresume"></i-cell>
+        <i-cell title="我的信息" is-link url="/pages/mysetting"></i-cell>
       </i-cell-group>
     </view>
     <!-- <view class='content-cell'>
-      <i-button open-type='contact'>联系客服</i-button>
-    </view> -->
+        <i-button open-type='contact'>联系客服</i-button>
+      </view> -->
   </view>
 </template>
 

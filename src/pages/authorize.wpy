@@ -51,9 +51,8 @@
 <script>
   import wepy from 'wepy'
   import {
-    getStore
-  } from 'wepy-redux'
-  const store = getStore()
+    WECHARTDATA
+  } from '@/utils/constants'
   export default class authorize extends wepy.page {
     config = {}
     data = {
@@ -66,14 +65,11 @@
         if (detail.errMsg === 'getUserInfo:ok') {
           wepy.login({
             success: res => {
-              store.dispatch({
-                type: 'WECHARTDATA',
-                payload: {
-                  code: res.code,
-                  encryptedData: detail.encryptedData,
-                  userInfo: detail.userInfo,
-                  iv: detail.iv
-                }
+              wepy.setStorageSync(WECHARTDATA, {
+                code: res.code,
+                encryptedData: detail.encryptedData,
+                userInfo: detail.userInfo,
+                iv: detail.iv
               })
               wepy.showTabBar()
               this.autoShow = false
@@ -83,14 +79,37 @@
         }
       }
     }
+    // doLogin(code, encryptedData, iv) {
+    //   let params = {
+    //     query: {
+    //       code: code,
+    //       encryptedData: encryptedData,
+    //       iv: iv
+    //     },
+    //     hideLoading: true
+    //   }
+    //   API.login(params).then((res) => {
+    //     if (res.code == '0') {
+    //       wepy.setStorageSync(TOKEN, res.data.token)
+    //       // this.$emit('indexEvent')
+    //     }
+    //   })
+    // }
     onLoad() {
       let _this = this
       wepy.getSetting({
         success(res) {
           if (res.authSetting['scope.userInfo']) {
-            wepy.showTabBar()
-            _this.autoShow = false
-            _this.$apply()
+            wepy.login({
+              success: res => {
+                let wcdata = wepy.getStorageSync(WECHARTDATA)
+                wcdata.code = res.code
+                wepy.setStorageSync(WECHARTDATA, wcdata)
+                wepy.showTabBar()
+                _this.autoShow = false
+                _this.$apply()
+              }
+            })
           } else {
             wepy.hideTabBar()
             _this.autoShow = true

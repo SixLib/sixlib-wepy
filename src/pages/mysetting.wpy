@@ -1,0 +1,86 @@
+<style lang='less'>
+  .avatar {
+    margin: ~'40rpx';
+    .mine-avatar {
+      width: ~'200rpx';
+      height: ~'200rpx';
+      border-radius: 50%;
+      overflow: hidden;
+      display: block;
+    }
+  }
+  .mysetting-content {
+    width: 100%;
+    .select-picker {
+      padding: 7px 15px;
+      color: #495060;
+      font-size: 14px;
+      display: flex;
+      .select-title {
+        color: #495060;
+        min-width: ~'150rpx';
+        margin-right: ~'20rpx';
+      }
+    }
+  }
+</style>
+
+<template>
+  <view class='container'>
+    <view class='avatar'>
+      <open-data class='mine-avatar' type='userAvatarUrl' />
+    </view>
+    <view class='mysetting-content'>
+      <i-panel title='基本信息'>
+        <i-input value='{{ nickName }}' title='昵称' autofocus placeholder='请输入' maxlength='10' />
+        <picker bindchange='bindGenderChange' value='{{genderCurrent}}' range='{{genderArr}}'>
+          <view class='picker select-picker'>
+            <view class='select-title'>性别</view>
+            <view>{{genderArr[genderCurrent]}}</view>
+          </view>
+        </picker>
+      </i-panel>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {
+    WECHARTDATA
+  } from '@/utils/constants'
+  export default class mySetting extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的信息',
+      'usingComponents': {
+        'i-panel': '../components/weapp/panel/index',
+        'i-input': '../components/weapp/input/index',
+        'i-radio-group': '../components/weapp/radio-group/index',
+        'i-radio': '../components/weapp/radio/index'
+      }
+    }
+    data = {
+      genderCurrent: 0,
+      genderArr: ['男', '女'],
+      nickName: ''
+    }
+    methods = {
+      handleGenderChange({
+        detail = {}
+      }) {
+        this.genderCurrent = detail.value
+      },
+      bindGenderChange({
+        detail
+      }) {
+        this.genderCurrent = detail.value
+      }
+    }
+    onLoad() {
+      let wcdata = wepy.getStorageSync(WECHARTDATA)
+      this.nickName = wcdata.userInfo.nickName
+      this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
+      this.$apply()
+    }
+  }
+</script>
