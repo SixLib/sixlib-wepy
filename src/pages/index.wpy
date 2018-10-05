@@ -1,33 +1,125 @@
 <style lang="less">
-
+  .banner {
+    width: 100%;
+    .slide-image {
+      height: 100%;
+    }
+  }
+  .menu {
+    padding: ~"30rpx";
+    box-sizing: border-box;
+    width: 100%;
+    .menu-box {
+      display: flex;
+      flex-wrap: wrap;
+      background: #FFFFFF;
+      box-shadow: 0 0 5px 0 #C3D0E1;
+      border-radius: 6px;
+      padding: ~"30rpx";
+      box-sizing: border-box;
+      .menu-item {
+        width: ~"318rpx";
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        .menu-item-box {
+          margin: ~"20rpx";
+        }
+      }
+    }
+  }
+  .btn-bottom {
+    width: 100%;
+  }
 </style>
 
 <template>
   <view class="container">
-    <i-button>主页</i-button>
+    <view class="banner">
+      <swiper indicator-dots="{{banner.indicatorDots}}" autoplay="{{banner.autoplay}}" interval="{{banner.interval}}" duration="{{banner.duration}}">
+        <repeat for="{{banner.imgUrls}}" key="index" index="index" item="item">
+          <swiper-item>
+            <image mode='aspectFit' src="{{item}}" class="slide-image" />
+          </swiper-item>
+        </repeat>
+      </swiper>
+    </view>
+    <view class='menu'>
+      <view class='menu-box'>
+        <view class="menu-item" style="border-right: 1rpx solid #cacaca;border-bottom: 1rpx solid #cacaca;" @tap='handleWarning'>
+          <view class="menu-item-box">
+            <i-icon type="accessory" size='40' />
+            <view>我的简历</view>
+          </view>
+        </view>
+        <view class="menu-item" style="border-bottom: 1rpx solid #cacaca;" @tap='handleWarning'>
+          <view class="menu-item-box">
+            <i-icon type="createtask" size='40' />
+            <view>敬请期待</view>
+          </view>
+        </view>
+        <view class="menu-item" style="border-right: 1rpx solid #cacaca;" @tap='handleWarning'>
+          <view class="menu-item-box">
+            <i-icon type="createtask" size='40' />
+            <view>敬请期待</view>
+          </view>
+        </view>
+        <view class="menu-item" @tap='handleWarning'>
+          <view class="menu-item-box">
+            <i-icon type="createtask" size='40' />
+            <view>敬请期待</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="btn-bottom">
+      <i-button @tap='handleWarning' type="primary" shape="circle">我的微信</i-button>
+    </view>
   </view>
   <authorize />
+  <i-toast id="toast" />
 </template>
 
 <script>
   import wepy from 'wepy'
   import authorize from '@/components/authorize'
+  import {
+    $Toast
+  } from '@/components/weapp/base/index'
   // import databaseCloud from '@/api/databaseCloud'
   export default class Index extends wepy.page {
     config = {
       navigationBarTitleText: '主页',
       usingComponents: {
         'i-button': '../components/weapp/button/index',
-        'i-modal': '../components/weapp/modal/index'
+        'i-modal': '../components/weapp/modal/index',
+        'i-icon': '../components/weapp/icon/index',
+        'i-toast': '../components/weapp/toast/index'
       }
     };
     components = {
       authorize: authorize
     };
     mixins = [];
-    data = {};
+    data = {
+      banner: {
+        indicatorDots: false,
+        autoplay: true,
+        interval: 5000,
+        duration: 1000,
+        imgUrls: ['../images/banner/banner1.jpg', '../images/banner/banner1.jpg']
+      }
+    };
     computed = {};
-    methods = {};
+    methods = {
+      handleWarning() {
+        $Toast({
+          content: '敬请期待',
+          type: 'warning'
+        })
+      }
+    };
     events = {};
     onLoad() {
       // databaseCloud.test.get({
