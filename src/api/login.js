@@ -16,7 +16,6 @@ const login = async () => {
           openappid: getRes.data._openid
         }
       })
-      console.log(store.getState().wechartdata)
     }
   }
 }

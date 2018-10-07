@@ -12,7 +12,7 @@
   .mysetting-content {
     width: 100%;
     .select-picker {
-      padding: 7px 15px;
+      padding: 11px 15px;
       color: #495060;
       font-size: 14px;
       display: flex;
@@ -23,6 +23,12 @@
       }
     }
   }
+  .bottom {
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    z-index: 999;
+  }
 </style>
 
 <template>
@@ -32,20 +38,35 @@
     </view>
     <view class='mysetting-content'>
       <i-panel title='基本信息'>
-        <i-input value='{{ nickName }}' title='昵称' autofocus placeholder='请输入' maxlength='10' />
+        <i-input value='{{ nickName }}' bind:change='bindNickName' title='昵称' autofocus placeholder='请输入' maxlength='10' />
         <picker bindchange='bindGenderChange' value='{{genderCurrent}}' range='{{genderArr}}'>
           <view class='picker select-picker'>
             <view class='select-title'>性别</view>
             <view>{{genderArr[genderCurrent]}}</view>
           </view>
         </picker>
+        <picker mode='date' bindchange='bindBirthdayChange' start='1900-01-01' value='{{birthdayCurrent}}'>
+          <view class='picker select-picker'>
+            <view class='select-title'>生日</view>
+            <view>{{birthday}}</view>
+          </view>
+        </picker>
+        <i-input value='{{ mobile }}' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
       </i-panel>
     </view>
+    <view class='bottom'>
+      <i-button bind:click='handleClick' type='primary' long='true'>确认提交</i-button>
+    </view>
   </view>
+  <i-toast id="toast" />
 </template>
 
 <script>
   import wepy from 'wepy'
+  import api from '@/api/index'
+  import {
+    $Toast
+  } from '@/components/weapp/base/index'
   import {
     WECHARTDATA
   } from '@/utils/constants'
@@ -56,30 +77,72 @@
         'i-panel': '../components/weapp/panel/index',
         'i-input': '../components/weapp/input/index',
         'i-radio-group': '../components/weapp/radio-group/index',
-        'i-radio': '../components/weapp/radio/index'
+        'i-radio': '../components/weapp/radio/index',
+        'i-button': '../components/weapp/button/index',
+        'i-toast': '../components/weapp/toast/index'
       }
     }
     data = {
       genderCurrent: 0,
+      birthdayCurrent: '',
       genderArr: ['男', '女'],
-      nickName: ''
+      nickName: '',
+      birthday: '',
+      mobile: ''
+    }
+    bindGenderChange({
+      detail
+    }) {
+      this.genderCurrent = detail.value
+    }
+    bindBirthdayChange({
+      detail
+    }) {
+      this.birthday = detail.value
+    }
+    bindNickName(e) {
+      this.nickName = e.detail.detail.value
+    }
+    bindMobile(e) {
+      this.mobile = e.detail.detail.value
     }
     methods = {
-      handleGenderChange({
-        detail = {}
-      }) {
-        this.genderCurrent = detail.value
-      },
-      bindGenderChange({
-        detail
-      }) {
-        this.genderCurrent = detail.value
+      async handleClick() {
+        let res = await api.accountAddOrUpdate({
+          nickName: this.nickName,
+          gender: this.genderCurrent,
+          birthday: this.birthday,
+          mobile: this.mobile
+        })
+        if (res.code === 200) {
+          $Toast({
+            content: '已提交',
+            type: 'success'
+          })
+          setTimeout(() => {
+            wepy.navigateBack({
+              delta: 1
+            })
+          }, 1000)
+        } else {
+          $Toast({
+            content: '未提交',
+            type: 'warning'
+          })
+        }
       }
     }
-    onLoad() {
+    async onLoad() {
       let wcdata = wepy.getStorageSync(WECHARTDATA)
       this.nickName = wcdata.userInfo.nickName
       this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
+      let res = await api.accountSearchByOpenId()
+      if (res.code === 200) {
+        this.nickName = res.data.nickName
+        this.genderCurrent = res.data.gender
+        this.birthday = res.data.birthday
+        this.mobile = res.data.mobile
+      }
       this.$apply()
     }
   }
