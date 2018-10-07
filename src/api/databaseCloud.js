@@ -7,9 +7,11 @@ const db = wx.cloud.database({ env: config.database.env })
 // get 方法会触发网络请求，往数据库取数据
 const login = db.collection('login')
 const account = db.collection('account')
+const resume = db.collection('resume')
 const test = db.collection('test')
 export default {
   login,
   account,
+  resume,
   test
 }

@@ -51,7 +51,7 @@
     </view>
     <view class='menu'>
       <view class='menu-box'>
-        <view class="menu-item" style="border-right: 1rpx solid #cacaca;border-bottom: 1rpx solid #cacaca;" @tap='handleWarning'>
+        <view class="menu-item" style="border-right: 1rpx solid #cacaca;border-bottom: 1rpx solid #cacaca;" @tap='handleMyResume'>
           <view class="menu-item-box">
             <i-icon type="accessory" size='40' />
             <view>我的简历</view>
@@ -117,6 +117,11 @@
     };
     computed = {};
     methods = {
+      handleMyResume() {
+        wepy.navigateTo({
+          url: '/pages/myresume'
+        })
+      },
       handleWarning() {
         $Toast({
           content: '敬请期待',

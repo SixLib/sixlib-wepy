@@ -18,8 +18,8 @@
       display: flex;
       .select-title {
         color: #495060;
-        min-width: ~'150rpx';
-        margin-right: ~'20rpx';
+        min-width: ~'65px';
+        padding-right: ~'10px';
       }
     }
   }
@@ -113,6 +113,17 @@
     bindMobile(e) {
       this.mobile = e.detail.detail.value
     }
+    valid() {
+      let state = true
+      if (this.nickName.length == 0) {
+        state = false
+        $Toast({
+          content: '请填写昵称',
+          type: 'warning'
+        })
+      }
+      return state
+    }
     methods = {
       uploadAvatar() {
         let _this = this
@@ -140,36 +151,39 @@
         })
       },
       async handleClick() {
-        let res = await api.accountAddOrUpdate({
-          avatarId: this.avatarId,
-          nickName: this.nickName,
-          gender: this.genderCurrent,
-          birthday: this.birthday,
-          mobile: this.mobile
-        })
-        if (res.code === 200) {
-          $Toast({
-            content: '已提交',
-            type: 'success'
+        if (this.valid()) {
+          let res = await api.accountAddOrUpdate({
+            avatarId: this.avatarId,
+            nickName: this.nickName,
+            gender: this.genderCurrent,
+            birthday: this.birthday,
+            mobile: this.mobile
           })
-          setTimeout(() => {
-            wepy.navigateBack({
-              delta: 1
+          if (res.code === 200) {
+            $Toast({
+              content: '已提交',
+              type: 'success'
             })
-          }, 1000)
-        } else {
-          $Toast({
-            content: '未提交',
-            type: 'warning'
-          })
+            setTimeout(() => {
+              wepy.navigateBack({
+                delta: 1
+              })
+            }, 1000)
+          } else {
+            $Toast({
+              content: '未提交',
+              type: 'warning'
+            })
+          }
         }
       }
     }
     async onLoad() {
+      let wcdata = wepy.getStorageSync(WECHARTDATA)
       let res = await api.accountSearchByOpenId()
       if (res.code === 200) {
-        this.nickName = res.data.nickName
-        this.genderCurrent = res.data.gender
+        this.nickName = res.data.nickName.length > 0 ? res.data.nickName : wcdata.userInfo.nickName
+        this.genderCurrent = res.data.gender.length > 0 ? res.data.gender : wcdata.userInfo.gender
         this.birthday = res.data.birthday
         this.mobile = res.data.mobile
         this.avatarId = res.data.avatarId
@@ -185,7 +199,6 @@
           fail: console.error
         })
       } else {
-        let wcdata = wepy.getStorageSync(WECHARTDATA)
         this.nickName = wcdata.userInfo.nickName
         this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
         this.$apply()

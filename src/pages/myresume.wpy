@@ -1,15 +1,155 @@
+<style lang="less">
+  .banner {
+    width: 100%;
+    height: 150px;
+    .slide-image {
+      height: 100%;
+      width: 100%;
+    }
+  }
+  .myresume-content {
+    width: 100%;
+    .select-picker {
+      padding: 11px 15px;
+      color: #495060;
+      font-size: 14px;
+      display: flex;
+      .select-title {
+        color: #495060;
+        min-width: ~'65px';
+        margin-right: ~'10px';
+      }
+    }
+  }
+  .bottom {
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    z-index: 999;
+  }
+</style>
+
 <template>
   <view class='container'>
-    我的简历
+    <view class="banner">
+      <image mode='aspectFit' src="{{bannerUrl}}" class="slide-image" />
+    </view>
+    <view class='myresume-content'>
+      <i-panel title='基本信息'>
+        <i-input value='{{ name }}' bind:change='bindName' title='姓名' placeholder='请输入' maxlength='10' />
+        <picker bindchange='bindGenderChange' value='{{genderCurrent}}' range='{{genderArr}}'>
+          <view class='picker select-picker'>
+            <view class='select-title'>性别</view>
+            <view>{{genderArr[genderCurrent]}}</view>
+          </view>
+        </picker>
+        <i-input value='{{ age }}' bind:change='bindAge' type='number' title='年龄' placeholder='请输入' maxlength='3' />
+        <picker mode="region" bindchange="bindNativePlaceChange" value="{{nativePlace}}">
+          <view class="picker select-picker">
+            <view class='select-title'>籍贯</view>
+            <view> {{nativePlace[0]}} - {{nativePlace[1]}} - {{nativePlace[2]}}</view>
+          </view>
+        </picker>
+        <i-input value='{{ mobile }}' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
+      </i-panel>
+    </view>
+    <view class='bottom'>
+      <i-button bind:click='handleClick' type='primary' long='true'>确认提交</i-button>
+    </view>
   </view>
+  <i-toast id="toast" />
 </template>
 
 <script>
   import wepy from 'wepy'
+  import api from '@/api/index'
+  import {
+    $Toast
+  } from '@/components/weapp/base/index'
   export default class myResume extends wepy.page {
     config = {
       navigationBarTitleText: '我的简历',
-      'usingComponents': {}
+      'usingComponents': {
+        'i-panel': '../components/weapp/panel/index',
+        'i-input': '../components/weapp/input/index',
+        'i-button': '../components/weapp/button/index',
+        'i-toast': '../components/weapp/toast/index'
+      }
+    }
+    data = {
+      bannerUrl: '../images/banner/banner1.jpg',
+      genderCurrent: 0,
+      birthdayCurrent: '',
+      genderArr: ['男', '女'],
+      name: '',
+      age: '',
+      mobile: '',
+      nativePlace: ['北京市', '北京市', '东城区'],
+      nativePlaceCustomItem: '默认'
+    }
+    bindGenderChange({
+      detail
+    }) {
+      this.genderCurrent = detail.value
+    }
+    bindNativePlaceChange({
+      detail
+    }) {
+      this.nativePlace = detail.value
+    }
+    bindName(e) {
+      this.name = e.detail.detail.value
+    }
+    bindAge(e) {
+      this.age = e.detail.detail.value
+    }
+    bindMobile(e) {
+      this.mobile = e.detail.detail.value
+    }
+    valid() {
+      let state = true
+      return state
+    }
+    methods = {
+      async handleClick() {
+        if (this.valid()) {
+          let res = await api.resumeAddOrUpdate({
+            avatarId: this.avatarId,
+            name: this.name,
+            gender: this.genderCurrent,
+            age: this.age,
+            mobile: this.mobile,
+            nativePlace: this.nativePlace
+          })
+          if (res.code === 200) {
+            $Toast({
+              content: '已提交',
+              type: 'success'
+            })
+            setTimeout(() => {
+              wepy.navigateBack({
+                delta: 1
+              })
+            }, 1000)
+          } else {
+            $Toast({
+              content: '未提交',
+              type: 'warning'
+            })
+          }
+        }
+      }
+    }
+    async onLoad() {
+      let res = await api.resumeSearchByOpenId()
+      if (res.code === 200) {
+        this.name = res.data.name
+        this.genderCurrent = res.data.gender
+        this.age = res.data.age
+        this.nativePlace = res.data.nativePlace
+        this.mobile = res.data.mobile
+        this.$apply()
+      }
     }
   }
 </script>
