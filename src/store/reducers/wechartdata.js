@@ -10,7 +10,8 @@ export default handleActions({
       userInfo: action.payload.userInfo,
       iv: action.payload.iv
     }
-  }, [OPENAPPID](state, action) {
+  },
+  [OPENAPPID](state, action) {
     return {
       ...state,
       openappid: action.payload.openappid
