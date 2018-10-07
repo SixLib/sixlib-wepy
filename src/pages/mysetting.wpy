@@ -35,7 +35,7 @@
   <view class='container'>
     <view class='avatar' @tap='uploadAvatar'>
       <view class='mine-avatar' wx:if='{{avatarId}}'>
-        <image  mode='widthFix' src='{{avatarUrl}}' />
+        <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
       </view>
       <view class='mine-avatar' wx:else>
         <open-data class='mine-avatar' type='userAvatarUrl' />
