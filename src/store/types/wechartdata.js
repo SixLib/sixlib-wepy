@@ -1,1 +1,2 @@
 export const WECHARTDATA = 'WECHARTDATA'
+export const OPENAPPID = 'OPENAPPID'

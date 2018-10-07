@@ -50,6 +50,7 @@
 
 <script>
   import wepy from 'wepy'
+  import api from '@/api/index'
   import {
     WECHARTDATA
   } from '@/utils/constants'
@@ -79,22 +80,9 @@
         }
       }
     }
-    // doLogin(code, encryptedData, iv) {
-    //   let params = {
-    //     query: {
-    //       code: code,
-    //       encryptedData: encryptedData,
-    //       iv: iv
-    //     },
-    //     hideLoading: true
-    //   }
-    //   API.login(params).then((res) => {
-    //     if (res.code == '0') {
-    //       wepy.setStorageSync(TOKEN, res.data.token)
-    //       // this.$emit('indexEvent')
-    //     }
-    //   })
-    // }
+    doLogin() {
+      api.login()
+    }
     onLoad() {
       let _this = this
       wepy.getSetting({
@@ -105,6 +93,7 @@
                 let wcdata = wepy.getStorageSync(WECHARTDATA)
                 wcdata.code = res.code
                 wepy.setStorageSync(WECHARTDATA, wcdata)
+                _this.doLogin()
                 wepy.showTabBar()
                 _this.autoShow = false
                 _this.$apply()

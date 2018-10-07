@@ -1,7 +1,9 @@
-import wepy from 'wepy'
-import { wechartdata } from '../types/wechartdata'
+import { WECHARTDATA, OPENAPPID } from '../types/wechartdata'
 import { createAction } from 'redux-actions'
 
-export const asyncInc = createAction(wechartdata, (e) => {
+export const asyncOpenAppId = createAction(OPENAPPID, (e) => {
+  return e
+})
+export const asyncWechartData = createAction(WECHARTDATA, (e) => {
   return e
 })

@@ -1,8 +1,8 @@
 import { handleActions } from 'redux-actions'
-import { WECHARTDATA } from '../types/wechartdata'
+import { WECHARTDATA, OPENAPPID } from '../types/wechartdata'
 
 export default handleActions({
-  [WECHARTDATA] (state, action) {
+  [WECHARTDATA](state, action) {
     return {
       ...state,
       code: action.payload.code,
@@ -10,10 +10,16 @@ export default handleActions({
       userInfo: action.payload.userInfo,
       iv: action.payload.iv
     }
+  }, [OPENAPPID](state, action) {
+    return {
+      ...state,
+      openappid: action.payload.openappid
+    }
   }
 }, {
-  code: '',
-  encryptedData: '',
-  userInfo: '',
-  iv: ''
-})
+    code: '',
+    encryptedData: '',
+    userInfo: '',
+    iv: '',
+    openappid: ''
+  })
