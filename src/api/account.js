@@ -11,6 +11,7 @@ const addOrUpdate = async (e) => {
   if (searchRes.errMsg == 'collection.get:ok' && searchRes.data.length > 0) {
     let updateRes = await databasecloud.account.doc(searchRes._id).update({
       data: {
+        avatarId: e.avatarId,
         nickName: e.nickName,
         gender: e.gender,
         birthday: e.birthday,
@@ -26,6 +27,7 @@ const addOrUpdate = async (e) => {
   } else {
     let res = await databasecloud.account.add({
       data: {
+        avatarId: e.avatarId,
         nickName: e.nickName,
         gender: e.gender,
         birthday: e.birthday,

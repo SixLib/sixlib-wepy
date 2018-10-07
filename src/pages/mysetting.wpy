@@ -33,12 +33,17 @@
 
 <template>
   <view class='container'>
-    <view class='avatar'>
-      <open-data class='mine-avatar' type='userAvatarUrl' />
+    <view class='avatar' @tap='uploadAvatar'>
+      <view class='mine-avatar' wx:if='{{avatarId}}'>
+        <image  mode='widthFix' src='{{avatarUrl}}' />
+      </view>
+      <view class='mine-avatar' wx:else>
+        <open-data class='mine-avatar' type='userAvatarUrl' />
+      </view>
     </view>
     <view class='mysetting-content'>
       <i-panel title='基本信息'>
-        <i-input value='{{ nickName }}' bind:change='bindNickName' title='昵称' autofocus placeholder='请输入' maxlength='10' />
+        <i-input value='{{ nickName }}' bind:change='bindNickName' title='昵称' placeholder='请输入' maxlength='10' />
         <picker bindchange='bindGenderChange' value='{{genderCurrent}}' range='{{genderArr}}'>
           <view class='picker select-picker'>
             <view class='select-title'>性别</view>
@@ -83,6 +88,8 @@
       }
     }
     data = {
+      avatarUrl: '',
+      avatarId: '',
       genderCurrent: 0,
       birthdayCurrent: '',
       genderArr: ['男', '女'],
@@ -107,8 +114,34 @@
       this.mobile = e.detail.detail.value
     }
     methods = {
+      uploadAvatar() {
+        let _this = this
+        wepy.chooseImage({
+          count: 1,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success(res) {
+            // tempFilePath可以作为img标签的src属性显示图片
+            const tempFilePaths = res.tempFilePaths
+            _this.avatarUrl = tempFilePaths[0]
+            _this.$apply()
+            wx.cloud.uploadFile({
+              cloudPath: `avatar${Date.parse(new Date())}.png`, // 上传至云端的路径
+              filePath: tempFilePaths[0], // 小程序临时文件路径
+              success: res => {
+                // 返回文件 ID
+                console.log(res.fileID)
+                _this.avatarId = res.fileID
+                _this.$apply()
+              },
+              fail: console.error
+            })
+          }
+        })
+      },
       async handleClick() {
         let res = await api.accountAddOrUpdate({
+          avatarId: this.avatarId,
           nickName: this.nickName,
           gender: this.genderCurrent,
           birthday: this.birthday,
@@ -133,17 +166,30 @@
       }
     }
     async onLoad() {
-      let wcdata = wepy.getStorageSync(WECHARTDATA)
-      this.nickName = wcdata.userInfo.nickName
-      this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
       let res = await api.accountSearchByOpenId()
       if (res.code === 200) {
         this.nickName = res.data.nickName
         this.genderCurrent = res.data.gender
         this.birthday = res.data.birthday
         this.mobile = res.data.mobile
+        this.avatarId = res.data.avatarId
+        this.$apply()
+        wx.cloud.downloadFile({
+          fileID: this.avatarId, // 文件 ID
+          success: res => {
+            // 返回临时文件路径
+            this.avatarUrl = res.tempFilePath
+            this.$apply()
+            console.log(res.tempFilePath)
+          },
+          fail: console.error
+        })
+      } else {
+        let wcdata = wepy.getStorageSync(WECHARTDATA)
+        this.nickName = wcdata.userInfo.nickName
+        this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
+        this.$apply()
       }
-      this.$apply()
     }
   }
 </script>
