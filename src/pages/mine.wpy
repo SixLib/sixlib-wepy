@@ -21,7 +21,7 @@
       <view class='mine-avatar'>
         <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
       </view>
-      <view>{{nickName}}</view>
+      <view style='text-align:center;'>{{nickName}}</view>
       <!-- <open-data type='userNickName' /> -->
     </view>
     <view class='content-cell'>
