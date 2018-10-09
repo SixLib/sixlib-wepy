@@ -78,7 +78,7 @@
       </view>
     </view>
     <view class="btn-bottom">
-      <i-button @tap='handleWarning' type="primary" shape="circle">我的微信</i-button>
+      <i-button @tap='previewImage' type="primary" shape="circle">我的微信</i-button>
     </view>
   </view>
   <authorize />
@@ -91,6 +91,10 @@
   import {
     $Toast
   } from '@/components/weapp/base/index'
+  import {
+    getStore
+  } from 'wepy-redux'
+  const store = getStore()
   // import databaseCloud from '@/api/databaseCloud'
   export default class Index extends wepy.page {
     config = {
@@ -121,6 +125,21 @@
         wepy.navigateTo({
           url: '/pages/myresume'
         })
+      },
+      previewImage() {
+        let accountStore = store.getState().account
+        if (accountStore.QRCodeId.length > 0) {
+          wx.cloud.downloadFile({
+            fileID: accountStore.QRCodeId, // 文件 ID
+            success: res => {
+              // 返回临时文件路径
+              wepy.previewImage({
+                urls: [res.tempFilePath] // 需要预览的图片http链接列表
+              })
+            },
+            fail: console.error
+          })
+        }
       },
       handleWarning() {
         $Toast({

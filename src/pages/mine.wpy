@@ -18,8 +18,11 @@
 <template>
   <view class='container'>
     <view class="avatar">
-      <open-data class='mine-avatar' type='userAvatarUrl' />
-      <open-data type='userNickName' />
+      <view class='mine-avatar'>
+        <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
+      </view>
+      <view>{{nickName}}</view>
+      <!-- <open-data type='userNickName' /> -->
     </view>
     <view class='content-cell'>
       <i-cell-group>
@@ -28,13 +31,17 @@
       </i-cell-group>
     </view>
     <!-- <view class='content-cell'>
-        <i-button open-type='contact'>联系客服</i-button>
-      </view> -->
+                      <i-button open-type='contact'>联系客服</i-button>
+                    </view> -->
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import {
+    getStore
+  } from 'wepy-redux'
+  const store = getStore()
   export default class Mine extends wepy.page {
     config = {
       navigationBarTitleText: '我的',
@@ -42,6 +49,25 @@
         'i-cell-group': '../components/weapp/cell-group/index',
         'i-cell': '../components/weapp/cell/index',
         'i-button': '../components/weapp/button/index'
+      }
+    }
+    data = {
+      avatarUrl: '',
+      nickName: ''
+    }
+    onShow() {
+      let accountStore = store.getState().account
+      this.nickName = accountStore.nickName
+      if (accountStore.avatarId.length > 0) {
+        wx.cloud.downloadFile({
+          fileID: accountStore.avatarId, // 文件 ID
+          success: res => {
+            // 返回临时文件路径
+            this.avatarUrl = res.tempFilePath
+            this.$apply()
+          },
+          fail: console.error
+        })
       }
     }
   }

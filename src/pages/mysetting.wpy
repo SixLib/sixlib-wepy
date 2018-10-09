@@ -14,6 +14,7 @@
     .select-picker {
       position: relative;
       display: flex;
+      align-items: center;
       overflow: hidden;
       padding: 11px 15px;
       background: #fff;
@@ -52,7 +53,7 @@
 
 <template>
   <view class='container'>
-    <view class='avatar' @tap='uploadAvatar'>
+    <view class='avatar' @tap='uploadFile(0)'>
       <view class='mine-avatar' wx:if='{{avatarId}}'>
         <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
       </view>
@@ -77,6 +78,12 @@
         </picker>
         <i-input value='{{ mobile }}' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
       </i-panel>
+      <i-panel title='我的二维码'>
+        <view class='picker select-picker' style='justify-content:center;'>
+          <i-button wx:if='{{isQRCodeId}}' style='width:50%;' bind:click='uploadFile(1)' type='primary' shape="circle"> 上传 </i-button>
+          <i-button wx:else style='width:50%;' bind:click='previewImage' type='primary' shape="circle"> 查看二维码 </i-button>
+        </view>
+      </i-panel>
     </view>
     <view class='bottom'>
       <i-button bind:click='handleClick' type='primary' long='true'>确认提交</i-button>
@@ -92,8 +99,9 @@
     $Toast
   } from '@/components/weapp/base/index'
   import {
-    WECHARTDATA
-  } from '@/utils/constants'
+    getStore
+  } from 'wepy-redux'
+  const store = getStore()
   export default class mySetting extends wepy.page {
     config = {
       navigationBarTitleText: '我的信息',
@@ -109,6 +117,9 @@
     data = {
       avatarUrl: '',
       avatarId: '',
+      isQRCodeId: true,
+      QRCodeUrl: '',
+      QRCodeId: '',
       genderCurrent: 0,
       birthdayCurrent: '',
       genderArr: ['男', '女'],
@@ -134,7 +145,7 @@
     }
     valid() {
       let state = true
-      if (this.nickName.length == 0) {
+      if (this.nickName.length === 0) {
         state = false
         $Toast({
           content: '请填写昵称',
@@ -144,7 +155,12 @@
       return state
     }
     methods = {
-      uploadAvatar() {
+      previewImage() {
+        wepy.previewImage({
+          urls: [this.QRCodeUrl] // 需要预览的图片http链接列表
+        })
+      },
+      uploadFile(type) {
         let _this = this
         wepy.chooseImage({
           count: 1,
@@ -153,15 +169,26 @@
           success(res) {
             // tempFilePath可以作为img标签的src属性显示图片
             const tempFilePaths = res.tempFilePaths
-            _this.avatarUrl = tempFilePaths[0]
             _this.$apply()
             wx.cloud.uploadFile({
-              cloudPath: `avatar${Date.parse(new Date())}.png`, // 上传至云端的路径
+              cloudPath: `uploadFile${type}${Date.parse(new Date())}.png`, // 上传至云端的路径
               filePath: tempFilePaths[0], // 小程序临时文件路径
               success: res => {
                 // 返回文件 ID
                 console.log(res.fileID)
-                _this.avatarId = res.fileID
+                switch (type) {
+                  case '0':
+                    _this.avatarId = res.fileID
+                    _this.avatarUrl = tempFilePaths[0]
+                    break
+                  case '1':
+                    _this.isQRCodeId = false
+                    _this.QRCodeUrl = tempFilePaths[0]
+                    _this.QRCodeId = res.fileID
+                    break
+                  default:
+                    break
+                }
                 _this.$apply()
               },
               fail: console.error
@@ -172,11 +199,12 @@
       async handleClick() {
         if (this.valid()) {
           let res = await api.accountAddOrUpdate({
-            avatarId: this.avatarId,
-            nickName: this.nickName,
-            gender: this.genderCurrent,
-            birthday: this.birthday,
-            mobile: this.mobile
+            QRCodeId: this.QRCodeId || '',
+            avatarId: this.avatarId || '',
+            nickName: this.nickName || '',
+            gender: this.genderCurrent || 0,
+            birthday: this.birthday || '',
+            mobile: this.mobile || ''
           })
           if (res.code === 200) {
             $Toast({
@@ -198,29 +226,36 @@
       }
     }
     async onLoad() {
-      let wcdata = wepy.getStorageSync(WECHARTDATA)
-      let res = await api.accountSearchByOpenId()
-      if (res.code === 200) {
-        this.nickName = res.data.nickName.length > 0 ? res.data.nickName : wcdata.userInfo.nickName
-        this.genderCurrent = res.data.gender.length > 0 ? res.data.gender : wcdata.userInfo.gender
-        this.birthday = res.data.birthday
-        this.mobile = res.data.mobile
-        this.avatarId = res.data.avatarId
-        this.$apply()
+      let accountStore = store.getState().account
+      this.nickName = accountStore.nickName || ''
+      this.genderCurrent = accountStore.gender || 0
+      this.birthday = accountStore.birthday
+      this.mobile = accountStore.mobile
+      this.avatarId = accountStore.avatarId || ''
+      this.isQRCodeId = accountStore.QRCodeId ? false : true
+      this.QRCodeId = accountStore.QRCodeId || ''
+      this.$apply()
+      if (this.avatarId.length > 0) {
         wx.cloud.downloadFile({
           fileID: this.avatarId, // 文件 ID
           success: res => {
             // 返回临时文件路径
             this.avatarUrl = res.tempFilePath
             this.$apply()
-            console.log(res.tempFilePath)
           },
           fail: console.error
         })
-      } else {
-        this.nickName = wcdata.userInfo.nickName
-        this.genderCurrent = wcdata.userInfo.gender === 1 ? 0 : 1
-        this.$apply()
+      }
+      if (this.QRCodeId.length > 0) {
+        wx.cloud.downloadFile({
+          fileID: this.QRCodeId, // 文件 ID
+          success: res => {
+            // 返回临时文件路径
+            this.QRCodeUrl = res.tempFilePath
+            this.$apply()
+          },
+          fail: console.error
+        })
       }
     }
   }

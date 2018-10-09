@@ -12,6 +12,7 @@
     .select-picker {
       position: relative;
       display: flex;
+      align-items: center;
       overflow: hidden;
       padding: 11px 15px;
       background: #fff;

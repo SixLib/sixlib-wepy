@@ -54,6 +54,13 @@
   import {
     WECHARTDATA
   } from '@/utils/constants'
+  import {
+    getStore
+  } from 'wepy-redux'
+  import {
+    ACCOUNT
+  } from '@/store/types/account'
+  const store = getStore()
   export default class authorize extends wepy.page {
     config = {}
     data = {
@@ -72,6 +79,7 @@
                 userInfo: detail.userInfo,
                 iv: detail.iv
               })
+              this.doLogin()
               wepy.showTabBar()
               this.autoShow = false
               this.$apply()
@@ -80,8 +88,28 @@
         }
       }
     }
-    doLogin() {
+    async doLogin() {
       api.login()
+      let wcdata = wepy.getStorageSync(WECHARTDATA)
+      await api.accountAdd({
+        avatarId: this.avatarId,
+        nickName: wcdata.userInfo.nickName,
+        gender: wcdata.userInfo.gender === 1 ? 0 : 1
+      })
+      let res = await api.accountSearchByOpenId()
+      if (res.code === 200) {
+        store.dispatch({
+          type: ACCOUNT,
+          payload: {
+            QRCodeId: res.data.QRCodeId,
+            avatarId: res.data.avatarId,
+            nickName: res.data.nickName,
+            gender: res.data.gender,
+            birthday: res.data.birthday,
+            mobile: res.data.mobile
+          }
+        })
+      }
     }
     onLoad() {
       let _this = this
