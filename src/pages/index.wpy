@@ -128,7 +128,7 @@
       },
       previewImage() {
         let accountStore = store.getState().account
-        if (accountStore.QRCodeId.length > 0) {
+        if (accountStore.QRCodeId && accountStore.QRCodeId.length > 0) {
           wx.cloud.downloadFile({
             fileID: accountStore.QRCodeId, // 文件 ID
             success: res => {
@@ -139,6 +139,11 @@
             },
             fail: console.error
           })
+        } else {
+          $Toast({
+          content: '请到我的设置中上传',
+          type: 'warning'
+        })
         }
       },
       handleWarning() {

@@ -18,8 +18,11 @@
 <template>
   <view class='container'>
     <view class="avatar">
-      <view class='mine-avatar'>
+      <view class='mine-avatar' wx:if='{{avatarUrl}}'>
         <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
+      </view>
+      <view class='mine-avatar' wx:else>
+        <open-data class='mine-avatar' type='userAvatarUrl' />
       </view>
       <view style='text-align:center;'>{{nickName}}</view>
       <!-- <open-data type='userNickName' /> -->
@@ -31,8 +34,8 @@
       </i-cell-group>
     </view>
     <!-- <view class='content-cell'>
-                      <i-button open-type='contact'>联系客服</i-button>
-                    </view> -->
+                        <i-button open-type='contact'>联系客服</i-button>
+                      </view> -->
   </view>
 </template>
 
@@ -58,7 +61,7 @@
     onShow() {
       let accountStore = store.getState().account
       this.nickName = accountStore.nickName
-      if (accountStore.avatarId.length > 0) {
+      if (accountStore.avatarId && accountStore.avatarId.length > 0) {
         wx.cloud.downloadFile({
           fileID: accountStore.avatarId, // 文件 ID
           success: res => {
