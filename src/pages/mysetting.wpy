@@ -80,10 +80,11 @@
       </i-panel>
       <i-panel title='我的二维码'>
         <view class='picker select-picker' style='justify-content:center;' wx:if='{{isQRCodeId}}'>
-          <i-button style='width:50%;' bind:click='uploadFile(1)' type='primary' shape="circle"> 上传 </i-button>
+          <i-button style='width:50%;' bind:click='uploadFile(1)' type='primary' shape="circle"> 上传二维码 </i-button>
         </view>
         <view class='picker select-picker' style='justify-content:center;' wx:else>
-          <i-button style='width:50%;' bind:click='previewImage' type='primary' shape="circle"> 查看二维码 </i-button>
+          <i-button bind:click='previewImage' type='primary'> 查看二维码 </i-button>
+          <i-button bind:click='uploadFile(1)' type='primary'> 更换二维码 </i-button>
         </view>
       </i-panel>
     </view>
@@ -182,7 +183,7 @@
             _this.$apply()
             let openappid = store.getState().wechartdata.openappid
             wx.cloud.uploadFile({
-              cloudPath: `uploadFile${type}${openappid}.png`, // 上传至云端的路径
+              cloudPath: `uploadFile${type}${openappid}${new Date().getTime()}.png`, // 上传至云端的路径
               filePath: tempFilePaths[0], // 小程序临时文件路径
               success: res => {
                 // 返回文件 ID
@@ -245,11 +246,11 @@
       this.avatarId = accountStore.avatarId || ''
       this.isQRCodeId = accountStore.QRCodeId ? false : true
       this.QRCodeId = accountStore.QRCodeId || ''
-      if (this.avatarId && this.avatarId.length > 0) {
-        this.avatarUrl = this.avatarId
+      if (accountStore.avatarId && accountStore.avatarId.length > 0) {
+        this.avatarUrl = accountStore.avatarId
       }
       if (this.avatarId && this.avatarId.length > 0) {
-        this.QRCodeUrl = this.QRCodeId
+        this.QRCodeUrl = accountStore.QRCodeId
       }
       this.$apply()
     }
