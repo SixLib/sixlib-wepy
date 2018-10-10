@@ -95,6 +95,7 @@
 <script>
   import wepy from 'wepy'
   import api from '@/api/index'
+  import util from '@/utils/util'
   import {
     $Toast
   } from '@/components/weapp/base/index'
@@ -149,6 +150,13 @@
         state = false
         $Toast({
           content: '请填写昵称',
+          type: 'warning'
+        })
+      }
+      if (this.mobile.length > 0 && !util.vailPhone(this.mobile)) {
+        state = false
+        $Toast({
+          content: '请正确填写手机号',
           type: 'warning'
         })
       }
