@@ -28,6 +28,7 @@ page{
         'pages/index',
         'pages/mine',
         'pages/myresume',
+        'pages/updateresume',
         'pages/mysetting'
       ],
       window: {

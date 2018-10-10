@@ -15,6 +15,7 @@ const addOrUpdate = async (e) => {
         name: e.name,
         gender: e.gender,
         age: e.age,
+        email: e.email,
         nativePlace: e.nativePlace,
         mobile: e.mobile
       }
@@ -32,6 +33,7 @@ const addOrUpdate = async (e) => {
         name: e.name,
         gender: e.gender,
         age: e.age,
+        email: e.email,
         nativePlace: e.nativePlace,
         mobile: e.mobile
       }
