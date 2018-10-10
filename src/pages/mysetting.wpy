@@ -54,7 +54,7 @@
 <template>
   <view class='container'>
     <view class='avatar' @tap='uploadFile(0)'>
-      <view class='mine-avatar' wx:if='{{avatarId}}'>
+      <view class='mine-avatar' wx:if='{{avatarUrl}}'>
         <image mode='scaleToFill' style='width:100%;height:100%;' src='{{avatarUrl}}' />
       </view>
       <view class='mine-avatar' wx:else>
@@ -79,9 +79,11 @@
         <i-input value='{{ mobile }}' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
       </i-panel>
       <i-panel title='我的二维码'>
-        <view class='picker select-picker' style='justify-content:center;'>
-          <i-button wx:if='{{isQRCodeId}}' style='width:50%;' bind:click='uploadFile(1)' type='primary' shape="circle"> 上传 </i-button>
-          <i-button wx:else style='width:50%;' bind:click='previewImage' type='primary' shape="circle"> 查看二维码 </i-button>
+        <view class='picker select-picker' style='justify-content:center;' wx:if='{{isQRCodeId}}'>
+          <i-button style='width:50%;' bind:click='uploadFile(1)' type='primary' shape="circle"> 上传 </i-button>
+        </view>
+        <view class='picker select-picker' style='justify-content:center;' wx:else>
+          <i-button style='width:50%;' bind:click='previewImage' type='primary' shape="circle"> 查看二维码 </i-button>
         </view>
       </i-panel>
     </view>
@@ -153,7 +155,7 @@
           type: 'warning'
         })
       }
-      if (this.mobile.length > 0 && !util.vailPhone(this.mobile)) {
+      if (this.mobile && this.mobile.length > 0 && !util.vailPhone(this.mobile)) {
         state = false
         $Toast({
           content: '请正确填写手机号',
@@ -178,8 +180,9 @@
             // tempFilePath可以作为img标签的src属性显示图片
             const tempFilePaths = res.tempFilePaths
             _this.$apply()
+            let openappid = store.getState().wechartdata.openappid
             wx.cloud.uploadFile({
-              cloudPath: `uploadFile${type}${Date.parse(new Date())}.png`, // 上传至云端的路径
+              cloudPath: `uploadFile${type}${openappid}.png`, // 上传至云端的路径
               filePath: tempFilePaths[0], // 小程序临时文件路径
               success: res => {
                 // 返回文件 ID
@@ -243,28 +246,28 @@
       this.isQRCodeId = accountStore.QRCodeId ? false : true
       this.QRCodeId = accountStore.QRCodeId || ''
       this.$apply()
+      let fileIDArr = []
       if (this.avatarId.length > 0) {
-        wx.cloud.downloadFile({
-          fileID: this.avatarId, // 文件 ID
-          success: res => {
-            // 返回临时文件路径
-            this.avatarUrl = res.tempFilePath
-            this.$apply()
-          },
-          fail: console.error
-        })
+        fileIDArr.push(this.avatarId)
       }
       if (this.QRCodeId.length > 0) {
-        wx.cloud.downloadFile({
-          fileID: this.QRCodeId, // 文件 ID
-          success: res => {
-            // 返回临时文件路径
-            this.QRCodeUrl = res.tempFilePath
-            this.$apply()
-          },
-          fail: console.error
-        })
+        fileIDArr.push(this.QRCodeId)
       }
+      wx.cloud.getTempFileURL({
+        fileList: fileIDArr
+      }).then(res => {
+        if (res.errMsg === 'cloud.getTempFileURL:ok') {
+          let avatarFile = res.fileList.find(e => {
+            return e.fileID === this.avatarId
+          })
+          this.avatarUrl = (avatarFile && avatarFile.status === 0) ? avatarFile.tempFileURL : ''
+          let QRCodeFile = res.fileList.find(e => {
+            return e.fileID === this.QRCodeId
+          })
+          this.QRCodeUrl = (QRCodeFile && QRCodeFile.status === 0) ? QRCodeFile.tempFileURL : ''
+          this.$apply()
+        }
+      })
     }
   }
 </script>

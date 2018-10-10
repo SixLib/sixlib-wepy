@@ -129,21 +129,22 @@
       previewImage() {
         let accountStore = store.getState().account
         if (accountStore.QRCodeId && accountStore.QRCodeId.length > 0) {
-          wx.cloud.downloadFile({
-            fileID: accountStore.QRCodeId, // 文件 ID
-            success: res => {
-              // 返回临时文件路径
+          wx.cloud.getTempFileURL({
+            fileList: [accountStore.QRCodeId]
+          }).then(res => {
+            if (res.errMsg === 'cloud.getTempFileURL:ok') {
+              let _url = (res.fileList[0] && res.fileList[0].status === 0) ? res.fileList[0].tempFileURL : ''
               wepy.previewImage({
-                urls: [res.tempFilePath] // 需要预览的图片http链接列表
+                urls: [_url] // 需要预览的图片http链接列表
               })
-            },
-            fail: console.error
+              this.$apply()
+            }
           })
         } else {
           $Toast({
-          content: '请到我的设置中上传',
-          type: 'warning'
-        })
+            content: '请到我的设置中上传',
+            type: 'warning'
+          })
         }
       },
       handleWarning() {
