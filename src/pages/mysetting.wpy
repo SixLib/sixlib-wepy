@@ -76,7 +76,7 @@
             <view>{{birthday}}</view>
           </view>
         </picker>
-        <i-input value='{{ mobile }}' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
+        <i-input value='{{ mobile }}' type='number' bind:change='bindMobile(e)' title='联系电话' placeholder='请输入' maxlength='11' />
       </i-panel>
       <i-panel title='我的二维码'>
         <view class='picker select-picker' style='justify-content:center;' wx:if='{{isQRCodeId}}'>
@@ -245,29 +245,13 @@
       this.avatarId = accountStore.avatarId || ''
       this.isQRCodeId = accountStore.QRCodeId ? false : true
       this.QRCodeId = accountStore.QRCodeId || ''
+      if (this.avatarId && this.avatarId.length > 0) {
+        this.avatarUrl = this.avatarId
+      }
+      if (this.avatarId && this.avatarId.length > 0) {
+        this.QRCodeUrl = this.QRCodeId
+      }
       this.$apply()
-      let fileIDArr = []
-      if (this.avatarId.length > 0) {
-        fileIDArr.push(this.avatarId)
-      }
-      if (this.QRCodeId.length > 0) {
-        fileIDArr.push(this.QRCodeId)
-      }
-      wx.cloud.getTempFileURL({
-        fileList: fileIDArr
-      }).then(res => {
-        if (res.errMsg === 'cloud.getTempFileURL:ok') {
-          let avatarFile = res.fileList.find(e => {
-            return e.fileID === this.avatarId
-          })
-          this.avatarUrl = (avatarFile && avatarFile.status === 0) ? avatarFile.tempFileURL : ''
-          let QRCodeFile = res.fileList.find(e => {
-            return e.fileID === this.QRCodeId
-          })
-          this.QRCodeUrl = (QRCodeFile && QRCodeFile.status === 0) ? QRCodeFile.tempFileURL : ''
-          this.$apply()
-        }
-      })
     }
   }
 </script>

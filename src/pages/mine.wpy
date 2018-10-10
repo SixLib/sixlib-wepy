@@ -34,8 +34,8 @@
       </i-cell-group>
     </view>
     <!-- <view class='content-cell'>
-                                      <i-button open-type='contact'>联系客服</i-button>
-                                    </view> -->
+                                        <i-button open-type='contact'>联系客服</i-button>
+                                      </view> -->
   </view>
 </template>
 
@@ -62,14 +62,8 @@
       let accountStore = store.getState().account
       this.nickName = accountStore.nickName
       if (accountStore.avatarId && accountStore.avatarId.length > 0) {
-        wx.cloud.getTempFileURL({
-          fileList: [accountStore.avatarId]
-        }).then(res => {
-          if (res.errMsg === 'cloud.getTempFileURL:ok') {
-            this.avatarUrl = (res.fileList[0] && res.fileList[0].status === 0) ? res.fileList[0].tempFileURL : ''
-            this.$apply()
-          }
-        })
+        this.avatarUrl = accountStore.avatarId
+        this.$apply()
       }
     }
   }

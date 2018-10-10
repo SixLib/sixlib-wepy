@@ -129,17 +129,10 @@
       previewImage() {
         let accountStore = store.getState().account
         if (accountStore.QRCodeId && accountStore.QRCodeId.length > 0) {
-          wx.cloud.getTempFileURL({
-            fileList: [accountStore.QRCodeId]
-          }).then(res => {
-            if (res.errMsg === 'cloud.getTempFileURL:ok') {
-              let _url = (res.fileList[0] && res.fileList[0].status === 0) ? res.fileList[0].tempFileURL : ''
-              wepy.previewImage({
-                urls: [_url] // 需要预览的图片http链接列表
-              })
-              this.$apply()
-            }
+          wepy.previewImage({
+            urls: [accountStore.QRCodeId] // 需要预览的图片http链接列表
           })
+          this.$apply()
         } else {
           $Toast({
             content: '请到我的设置中上传',
